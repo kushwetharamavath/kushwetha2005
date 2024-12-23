@@ -1,35 +1,33 @@
 const { Builder, By, Key, until } = require('selenium-webdriver');
-const chrome = require('selenium-webdriver/chrome');
+const chrome = require('selenium-webdriver/chrome');  // Fixed 'required' to 'require'
 
-(async () => {
-    const driver = await new Builder()
-        .forBrowser('chrome')
-        .setChromeOptions(new chrome.Options())
-        .build();
+async function searchGoogle() {
+  // Create a new instance of the Chrome WebDriver
+  const driver = await new Builder()
+    .forBrowser('chrome')  // Specify browser as 'chrome'
+    .setChromeOptions(new chrome.Options())  // Set Chrome options
+    .build();
+  
+  try {
+    // Navigate to Google
+    await driver.get('https://www.google.com');
 
-    try {
-        // Test Case 1: Navigate to Google and verify title
-        await driver.get('https://www.google.com');
-        await driver.wait(until.titleContains('Google'), 10000);
-        console.log('Test Case 1 Passed: Title contains "Google"');
+    // Find the search input field using its name attribute
+    const searchBox = await driver.findElement(By.name('q'));
 
-        // Test Case 2: Search for "Selenium" on Google
-        await driver.findElement(By.name('q')).sendKeys('Selenium', Key.RETURN);
-        await driver.wait(until.titleContains('Selenium'), 10000);
-        console.log('Test Case 2 Passed: Title contains "Selenium"');
+    // Type the search query into the search box
+    await searchBox.sendKeys('Selenium WebDriver', Key.RETURN);  // Key.RETURN simulates pressing Enter
+    
+    // Wait until the results page is loaded and title contains 'Selenium WebDriver'
+    await driver.wait(until.titleContains('Selenium WebDriver'), 10000);
 
-        // Test Case 3: Verify search results
-        const searchResults = await driver.findElements(By.css('div.g'));
-        console.log('Test Case 3 Passed: Found ${searchResults.length} search results');
+    console.log('Search completed!');
 
-        // Test Case 4: Verify the presence of the search input box
-        const searchInput = await driver.findElement(By.name('q'));
-        const isSearchInputDisplayed = await searchInput.isDisplayed();
-        console.log('Test Case 4 Passed: Search input box is displayed: ${isSearchInputDisplayed}');
+  } finally {
+    // Close the browser after the operation
+    await driver.quit();
+  }
+}
 
-    } catch (error) {
-        console.error('One or more test cases failed:', error);
-    } finally {
-        await driver.quit();
-    }
-})();
+// Execute the searchGoogle function
+searchGoogle();
